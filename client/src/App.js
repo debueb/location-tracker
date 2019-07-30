@@ -19,7 +19,7 @@ class App extends Component {
   // Fetch passwords after first mount
   componentDidMount() {
     const socket = socketIOClient();
-    socket.on("LocationUpdate", data => this.updateMap(data));
+    socket.on("LocationUpdate", this.updateMap);
 
     fetch('/api/location').then(response => {
       if (response.status !== 200) {
@@ -28,7 +28,7 @@ class App extends Component {
       }
 
       // Examine the text in the response
-      response.json().then(data => this.updateMap(data));
+      response.json().then(this.updateMap);
     }).catch((err) => {
       console.log(err)
     })
