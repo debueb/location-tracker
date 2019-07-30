@@ -16,7 +16,6 @@ const location = (io) => {
     if (lines.length) {
       lines.forEach(line => gps.update(line));
     }
-    console.log(gps.state)
     io.emit('LocationUpdate', gps.state);
     res.status(200).end()
   });
