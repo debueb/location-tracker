@@ -58,8 +58,7 @@ class App extends Component {
   }
 
   render() {
-    const { location, speed, lastUpdate } = this.state.data;
-    console.log(speed);
+    const { location, speed, gpsDate, lastUpdate } = this.state.data;
     return (
       <div>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
@@ -75,6 +74,7 @@ class App extends Component {
                 <th>Latitude</th>
                 <th>Longitude</th>
                 <th>Speed</th>
+                <th>GPS Fix Date</th>
                 <th>Last Update</th>
               </tr>
             </thead>
@@ -83,7 +83,8 @@ class App extends Component {
                 <td>{location ? location[0] : 'unknown'}</td>
                 <td>{location ? location[1] : 'unknown'}</td>
                 <td>{speed != null ? speed : 'unknown'}</td>
-                <td>{lastUpdate ? <TimeAgo datetime={lastUpdate}/> : 'never'}</td>
+                <td>{gpsDate ? <TimeAgo datetime={gpsDate}/> : 'unknown'}</td>
+                <td>{lastUpdate ? <TimeAgo datetime={lastUpdate}/> : 'unknown'}</td>
               </tr>
             </tbody>
           </table>
