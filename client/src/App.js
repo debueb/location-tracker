@@ -47,7 +47,7 @@ class App extends Component {
 
   updateMap = (data) => {
     this.setState({ data })
-    if (data.location) {
+    if (data.lat && data.lon) {
       if (this.marker) {
         this.marker.setLatLng(data);
       } else {
