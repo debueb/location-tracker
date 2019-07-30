@@ -16,13 +16,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
-app.use(bodyParser.json())
-
-app.use(bodyParser.text())
+app.use(bodyParser.text({type: '*/*'}));
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
