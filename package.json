@@ -6,7 +6,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.15.3",
-    "gps_parser": "^1.4.0",
+    "gps": "^0.5.3",
     "socket.io": "^2.2.0"
   },
   "scripts": {

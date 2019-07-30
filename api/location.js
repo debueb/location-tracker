@@ -1,26 +1,23 @@
 const express = require("express");
-const gps_parser = require("gps_parser");
+const GPS = require('gps')
 const router = express.Router();
 
 const location = (io) => {
 
-  let data = {}
+  var gps = new GPS;
 
   router.get('/api/location', (req, res) => {
-    res.json(data)
+    res.json(gps.state)
   });
 
   router.post('/', (req, res) => {
-    gpsData = new gps_parser(req.body)
-    console.log(gpsData)
-    data = {
-      location: [gpsData.latitude, gpsData.longitude],
-      speed: gpsData.speedkmh,
-      gpsDate: gpsData.date,
-      lastUpdate: Date.now()
+    
+    const lines = req.body.split(/\r?\n/)
+    if (lines.length) {
+      lines.forEach(line => gps.update(line));
     }
-
-    io.emit('LocationUpdate', data)
+    console.log(gps.state)
+    io.emit('LocationUpdate', gps.state);
     res.status(200).end()
   });
   return router;

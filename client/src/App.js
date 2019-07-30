@@ -49,16 +49,16 @@ class App extends Component {
     this.setState({ data })
     if (data.location) {
       if (this.marker) {
-        this.marker.setLatLng(data.location);
+        this.marker.setLatLng(data);
       } else {
-        this.marker = L.marker(data.location).addTo(this.map);
+        this.marker = L.marker(data).addTo(this.map);
       }
-      this.map.panTo(data.location)
+      this.map.panTo(data)
     }
   }
 
   render() {
-    const { location, speed, gpsDate, lastUpdate } = this.state.data;
+    const { lat, lon, alt, satsActive, speed, time } = this.state.data;
     return (
       <div>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
@@ -73,18 +73,20 @@ class App extends Component {
               <tr>
                 <th>Latitude</th>
                 <th>Longitude</th>
+                <th>Altitude</th>
                 <th>Speed</th>
-                <th>GPS Fix Date</th>
+                <th>Active Satellites</th>
                 <th>Last Update</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>{location ? location[0] : 'unknown'}</td>
-                <td>{location ? location[1] : 'unknown'}</td>
+                <td>{lat ? lat : 'unknown'}</td>
+                <td>{lon ? lon : 'unknown'}</td>
+                <td>{alt ? alt : 'unknown'}</td>
+                <td>{satsActive ? satsActive.length : 'unknown'}</td>
                 <td>{speed != null ? speed : 'unknown'}</td>
-                <td>{gpsDate ? <TimeAgo datetime={gpsDate}/> : 'unknown'}</td>
-                <td>{lastUpdate ? <TimeAgo datetime={lastUpdate}/> : 'unknown'}</td>
+                <td>{time ? <TimeAgo datetime={time}/> : 'unknown'}</td>
               </tr>
             </tbody>
           </table>
