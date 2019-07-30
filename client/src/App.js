@@ -1,61 +1,78 @@
 import React, { Component } from 'react';
+import socketIOClient from 'socket.io-client';
+import TimeAgo from 'timeago-react';
+import L from 'leaflet';
 import './App.css';
 
 class App extends Component {
   // Initialize state
-  state = { passwords: [] }
+  state = { 
+    data: {}
+  }
+
+  constructor(){
+    super()
+    this.renderMap.bind(this);
+    this.updateMap.bind(this);
+  }
 
   // Fetch passwords after first mount
   componentDidMount() {
-    this.getPasswords();
+    const socket = socketIOClient();
+    socket.on("LocationUpdate", data => this.updateMap(data));
+
+    fetch('/api/location').then(response => {
+      if (response.status !== 200) {
+        console.log(response.status);
+        return;
+      }
+
+      // Examine the text in the response
+      response.json().then(data => this.updateMap(data));
+    }).catch((err) => {
+      console.log(err)
+    })
+    this.renderMap();
   }
 
-  getPasswords = () => {
-    // Get the passwords and store them in state
-    fetch('/api/passwords')
-      .then(res => res.json())
-      .then(passwords => this.setState({ passwords }));
+  renderMap = () => {
+    this.map = L.map('map', {
+      center: [48.499998, 23.3833318],
+      zoom: 5,
+      layers: [
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png'),
+      ]
+    });
+  }
+
+  updateMap = (data) => {
+    this.setState({ data })
+    if (data.location) {
+      if (this.marker) {
+        this.marker.setLatLng(data.location);
+      } else {
+        this.marker = L.marker(data.location).addTo(this.map);
+      }
+      this.map.panTo(data.location)
+    }
   }
 
   render() {
-    const { passwords } = this.state;
-
+    const { location, lastUpdate } = this.state.data;
     return (
-      <div className="App">
-        {/* Render the passwords if we have them */}
-        {passwords.length ? (
-          <div>
-            <h1>5 Passwords.</h1>
-            <ul className="passwords">
-              {/*
-                Generally it's bad to use "index" as a key.
-                It's ok for this example because there will always
-                be the same number of passwords, and they never
-                change positions in the array.
-              */}
-              {passwords.map((password, index) =>
-                <li key={index}>
-                  {password}
-                </li>
-              )}
-            </ul>
-            <button
-              className="more"
-              onClick={this.getPasswords}>
-              Get More
-            </button>
-          </div>
-        ) : (
-          // Render a helpful message otherwise
-          <div>
-            <h1>No passwords :(</h1>
-            <button
-              className="more"
-              onClick={this.getPasswords}>
-              Try Again?
-            </button>
-          </div>
-        )}
+      <div>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossOrigin=""/>
+          <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+          integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+          crossOrigin=""></script>
+        <div className="App">
+          <div>lat: {location ? location[0] : 'unknown'}</div>
+          <div>lng: {location ? location[1] : 'unknown'}</div>
+          <div>last update: {lastUpdate ? <TimeAgo datetime={lastUpdate}/> : 'never'}</div>
+          <div id="map"></div>
+        </div>
       </div>
     );
   }

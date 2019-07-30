@@ -2,10 +2,14 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "homepage" : "https://github.com/debueb/location-tracker",
   "dependencies": {
+    "leaflet": "^1.5.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "socket.io-client": "^2.2.0",
+    "timeago-react": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
