@@ -37,8 +37,8 @@ class App extends Component {
 
   renderMap = () => {
     this.map = L.map('map', {
-      center: [48.499998, 23.3833318],
-      zoom: 5,
+      center: [50.93333, 6.95],
+      zoom: 10,
       layers: [
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png'),
       ]
@@ -58,7 +58,8 @@ class App extends Component {
   }
 
   render() {
-    const { location, lastUpdate } = this.state.data;
+    const { location, speed, lastUpdate } = this.state.data;
+    console.log(speed);
     return (
       <div>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
@@ -68,9 +69,24 @@ class App extends Component {
           integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
           crossOrigin=""></script>
         <div className="App">
-          <div>lat: {location ? location[0] : 'unknown'}</div>
-          <div>lng: {location ? location[1] : 'unknown'}</div>
-          <div>last update: {lastUpdate ? <TimeAgo datetime={lastUpdate}/> : 'never'}</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Speed</th>
+                <th>Last Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{location ? location[0] : 'unknown'}</td>
+                <td>{location ? location[1] : 'unknown'}</td>
+                <td>{speed != null ? speed : 'unknown'}</td>
+                <td>{lastUpdate ? <TimeAgo datetime={lastUpdate}/> : 'never'}</td>
+              </tr>
+            </tbody>
+          </table>
           <div id="map"></div>
         </div>
       </div>

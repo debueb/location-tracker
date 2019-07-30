@@ -11,11 +11,12 @@ const location = (io) => {
   });
 
   router.post('/', (req, res) => {
-    const gpsPack = new gps_parser(req.body)
-    
+    gpsData = new gps_parser(req.body)
+    console.log(gpsData.speedkmh)
     data = {
-      location: [gpsPack.latitude, gpsPack.longitude],
-      lastUpdate: Date.now()
+      location: [gpsData.latitude, gpsData.longitude],
+      speed: gpsData.speedkmh,
+      lastUpdate: gpsData.date
     }
 
     io.emit('LocationUpdate', data)

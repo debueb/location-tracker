@@ -5,6 +5,12 @@
 }
 
 #map{
-  height: calc(100vh - 50px);
+  height: calc(100vh - 46px);
   width: 100vw;
+}
+
+table
+{ 
+    margin-left: auto;
+    margin-right: auto;
 }
