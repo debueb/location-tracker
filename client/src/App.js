@@ -38,7 +38,7 @@ class App extends Component {
   renderMap = () => {
     this.map = L.map('map', {
       center: [50.93333, 6.95],
-      zoom: 10,
+      zoom: 14,
       layers: [
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png'),
       ]
