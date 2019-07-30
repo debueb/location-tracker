@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import socketIOClient from 'socket.io-client';
-import TimeAgo from 'timeago-react';
+import TimeAgo from 'react-timeago';
 import L from 'leaflet';
 import './App.css';
 
@@ -84,9 +84,9 @@ class App extends Component {
                 <td>{lat ? lat : 'unknown'}</td>
                 <td>{lon ? lon : 'unknown'}</td>
                 <td>{alt ? alt : 'unknown'}</td>
-                <td>{satsActive ? satsActive.length : 'unknown'}</td>
                 <td>{speed != null ? speed : 'unknown'}</td>
-                <td>{time ? <TimeAgo datetime={time}/> : 'unknown'}</td>
+                <td>{satsActive ? satsActive.length : 'unknown'}</td>
+                <td>{time ? <TimeAgo date={time}/> : 'unknown'}</td>
               </tr>
             </tbody>
           </table>
