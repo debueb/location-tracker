@@ -1,4 +1,5 @@
 const express = require("express");
+const gps_parser = require("gps_parser");
 const router = express.Router();
 
 const location = (io) => {
@@ -10,12 +11,10 @@ const location = (io) => {
   });
 
   router.post('/', (req, res) => {
-    console.log("Incoming request:")
-    console.log(req.headers['content-type']);
-    console.log(JSON.stringify(req.body, null, 2))
-
+    const gpsPack = new gps_parser(req.body)
+    
     data = {
-      location: [50, 50],
+      location: [gpsPack.latitude, gpsPack.longitude],
       lastUpdate: Date.now()
     }
 
