@@ -7,13 +7,15 @@ import './App.css';
 class App extends Component {
   // Initialize state
   state = { 
-    data: {}
+    data: {},
+    playSound: false,
   }
 
   constructor(){
     super()
     this.renderMap.bind(this);
     this.updateMap.bind(this);
+    this.audioTag = React.createRef();
   }
 
   // Fetch passwords after first mount
@@ -54,8 +56,11 @@ class App extends Component {
         this.marker = L.marker(data).addTo(this.map);
       }
       this.map.panTo(data)
+      if (this.state.playSound){
+        this.audioTag.play();
+      }
     }
-  }
+   }
 
   render() {
     const { lat, lon, alt, satsActive, speed, time } = this.state.data;
@@ -77,6 +82,7 @@ class App extends Component {
                 <th>Speed</th>
                 <th>Active Satellites</th>
                 <th>Last Update</th>
+                <th>Sound</th>
               </tr>
             </thead>
             <tbody>
@@ -87,11 +93,19 @@ class App extends Component {
                 <td>{speed != null ? speed : 'unknown'}</td>
                 <td>{satsActive ? satsActive.length : 'unknown'}</td>
                 <td>{time ? <TimeAgo date={time}/> : 'unknown'}</td>
+                <td><input 
+                        type="checkbox"
+                        checked={this.state.playSound}
+                        onChange={() => this.setState({playSound: !this.state.playSound})} />
+                </td>
               </tr>
             </tbody>
           </table>
           <div id="map"></div>
         </div>
+        {this.state.playSound &&
+          <audio ref={(input) => {this.audioTag = input}} src="./beep.mp3" />
+        }
       </div>
     );
   }
