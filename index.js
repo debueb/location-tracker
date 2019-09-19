@@ -3,7 +3,6 @@ const http = require("http");
 const bodyParser = require('body-parser')
 const socketIo = require("socket.io");
 const path = require('path');
-const sslRedirect = require('heroku-ssl-redirect');
 const location = require("./api/location");
 
 const app = express();
@@ -24,7 +23,14 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.use(location(io));
 
-app.use(sslRedirect());
+if(process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https')
+      res.redirect(`https://${req.header('host')}${req.url}`)
+    else
+      next()
+  })
+}
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.

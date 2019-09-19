@@ -4,7 +4,6 @@ import TimeAgo from 'react-timeago';
 import L from 'leaflet';
 import GPS from 'gps';
 import './App.css';
-import { throws } from 'assert';
 
 let homeIcon = L.icon({
   iconUrl: 'home.png',
