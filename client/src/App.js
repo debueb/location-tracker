@@ -84,7 +84,7 @@ class App extends Component {
   renderDistance = ()=> {
     if (this.state.data.lat && this.state.data.lon){
       if (!this.state.showDistance) {
-        navigator.geolocation.watchPosition((position) => {
+        this.watchPositionId = navigator.geolocation.watchPosition((position) => {
           let distance = GPS.Distance(this.state.data.lat, this.state.data.lon, position.coords.latitude, position.coords.longitude);
           const userPosition = {lat: position.coords.latitude, lng: position.coords.longitude}
           if (this.userMarker) {
@@ -100,11 +100,17 @@ class App extends Component {
         }, (error) => {
           console.log(error);
         });
-      } else if (this.map && this.userMarker) {
-          this.map.removeLayer(this.userMarker)
-          this.map.removeLayer(this.line);
+      } else { 
+        if (this.watchPositionId) {
+          navigator.geolocation.clearWatch(this.watchPositionId);
+        }
+        if (this.userMarker) {
+          this.userMarker.remove()
+          this.line.remove();
           this.userMarker = undefined;
+          this.line = undefined;
           this.centerMap();
+        }
       }
       this.setState({showDistance: !this.state.showDistance})
     }
