@@ -58,7 +58,7 @@ class App extends Component {
       center: [this.state.data.lat, this.state.data.lon],
       zoom: 14,
       layers: [
-        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png'),
+        L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png'),
       ]
     });
   }
