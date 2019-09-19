@@ -6,7 +6,8 @@ import './App.css';
 
 class App extends Component {
   // Initialize state
-  state = { 
+  state = {
+    msg: "Location not available",
     data: {},
     centerMap: true,
     playSound: false,
@@ -26,20 +27,25 @@ class App extends Component {
 
     fetch('/api/location').then(response => {
       if (response.status !== 200) {
-        console.log(response.status);
+        this.setState({ 
+          msg: `Server returned response status: ${response.status}`
+        });
         return;
       }
 
       response.json().then(this.updateMap);
     }).catch((err) => {
-      console.log(err)
+      console.log(err);
+      this.setState({ 
+        msg: err
+      });
     })
-    this.renderMap();
   }
 
   renderMap = () => {
+    this.setState( { msg: null });
     this.map = L.map('map', {
-      center: [50.93333, 6.95],
+      center: [this.state.data.lat, this.state.data.lon],
       zoom: 14,
       layers: [
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png'),
@@ -50,6 +56,9 @@ class App extends Component {
   updateMap = (data) => {
     this.setState({ data })
     if (data.lat && data.lon) {
+      if (!this.map) {
+        this.renderMap()
+      }
       if (this.marker) {
         this.marker.setLatLng(data);
       } else {
@@ -62,7 +71,7 @@ class App extends Component {
         this.audioTag.play();
       }
     }
-   }
+  }
 
   render() {
     const { lat, lon, alt, satsActive, speed, time } = this.state.data;
@@ -109,6 +118,7 @@ class App extends Component {
               </tr>
             </tbody>
           </table>
+          <div class="msg">{this.state.msg}</div>
           <div id="map"></div>
         </div>
         {this.state.playSound &&

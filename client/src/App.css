@@ -2,7 +2,16 @@
   text-align: center;
   font-family: "Helvetica", monospace;
 }
-
+.msg {
+  height: calc(100vh - 46px);
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.msg:empty {
+  display: none;
+}
 #map{
   height: calc(100vh - 46px);
   width: 100vw;
