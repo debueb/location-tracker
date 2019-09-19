@@ -3,6 +3,7 @@ const http = require("http");
 const bodyParser = require('body-parser')
 const socketIo = require("socket.io");
 const path = require('path');
+const sslRedirect = require('heroku-ssl-redirect');
 const location = require("./api/location");
 
 const app = express();
@@ -22,6 +23,8 @@ app.use(bodyParser.text({type: '*/*'}));
 app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.use(location(io));
+
+app.use(sslRedirect());
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
