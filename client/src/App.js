@@ -74,7 +74,7 @@ class App extends Component {
       } else {
         this.marker = L.marker(data, {icon: homeIcon}).addTo(this.map);
       }
-      this.centerMap([this.marker]);
+      this.centerMap();
       if (this.state.playSound){
         this.audioTag.play();
       }
@@ -96,7 +96,7 @@ class App extends Component {
             this.line.remove();
           }
           this.line = L.polyline([this.state.data, userPosition], {color: 'red'}).bindTooltip(`${distance.toFixed(3)} km`, { permanent: true }).addTo(this.map);
-          this.centerMap([this.marker, this.userMarker]);
+          this.centerMap();
         }, (error) => {
           console.log(error);
         });
@@ -104,14 +104,18 @@ class App extends Component {
           this.map.removeLayer(this.userMarker)
           this.map.removeLayer(this.line);
           this.userMarker = undefined;
-          this.centerMap([this.marker]);
+          this.centerMap();
       }
       this.setState({showDistance: !this.state.showDistance})
     }
   }
 
-  centerMap = (markers) => {
+  centerMap = () => {
     if (this.state.centerMap) {
+      let markers = [this.marker];
+      if (this.userMarker) {
+        markers.push(this.userMarker)
+      }
       this.map.fitBounds(new L.featureGroup(markers).getBounds());
     }
   }
