@@ -2,7 +2,14 @@ import React, { Component } from 'react';
 import socketIOClient from 'socket.io-client';
 import TimeAgo from 'react-timeago';
 import L from 'leaflet';
+import GPS from 'gps';
 import './App.css';
+import { throws } from 'assert';
+
+let homeIcon = L.icon({
+  iconUrl: 'home.png',
+  iconSize: [41, 41],
+});
 
 class App extends Component {
   // Initialize state
@@ -11,12 +18,15 @@ class App extends Component {
     data: {},
     centerMap: true,
     playSound: false,
+    showDistance: false,
   }
 
   constructor(){
     super()
     this.renderMap.bind(this);
     this.updateMap.bind(this);
+    this.renderDistance.bind(this);
+    this.centerMap.bind(this);
     this.audioTag = React.createRef();
   }
 
@@ -62,14 +72,47 @@ class App extends Component {
       if (this.marker) {
         this.marker.setLatLng(data);
       } else {
-        this.marker = L.marker(data).addTo(this.map);
+        this.marker = L.marker(data, {icon: homeIcon}).addTo(this.map);
       }
-      if (this.state.centerMap) {
-        this.map.panTo(data)
-      }
+      this.centerMap([this.marker]);
       if (this.state.playSound){
         this.audioTag.play();
       }
+    }
+  }
+
+  renderDistance = ()=> {
+    if (this.state.data.lat && this.state.data.lon){
+      if (!this.state.showDistance) {
+        navigator.geolocation.watchPosition((position) => {
+          let distance = GPS.Distance(this.state.data.lat, this.state.data.lon, position.coords.latitude, position.coords.longitude);
+          const userPosition = {lat: position.coords.latitude, lng: position.coords.longitude}
+          if (this.userMarker) {
+            this.userMarker.setLatLng(userPosition)
+          } else {
+            this.userMarker = L.marker(userPosition).addTo(this.map);
+          }
+          if (this.line){
+            this.line.remove();
+          }
+          this.line = L.polyline([this.state.data, userPosition], {color: 'red'}).bindTooltip(`${distance.toFixed(3)} km`, { permanent: true }).addTo(this.map);
+          this.centerMap([this.marker, this.userMarker]);
+        }, (error) => {
+          console.log(error);
+        });
+      } else if (this.map && this.userMarker) {
+          this.map.removeLayer(this.userMarker)
+          this.map.removeLayer(this.line);
+          this.userMarker = undefined;
+          this.centerMap([this.marker]);
+      }
+      this.setState({showDistance: !this.state.showDistance})
+    }
+  }
+
+  centerMap = (markers) => {
+    if (this.state.centerMap) {
+      this.map.fitBounds(new L.featureGroup(markers).getBounds());
     }
   }
 
@@ -84,40 +127,59 @@ class App extends Component {
           integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
           crossOrigin=""></script>
         <div className="App">
-          <table>
-            <thead>
-              <tr>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Altitude</th>
-                <th>Speed</th>
-                <th>Active Satellites</th>
-                <th>Last Update</th>
-                <th>Follow</th>
-                <th>Sound</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{lat ? lat : 'unknown'}</td>
-                <td>{lon ? lon : 'unknown'}</td>
-                <td>{alt ? alt : 'unknown'}</td>
-                <td>{speed != null ? speed : 'unknown'}</td>
-                <td>{satsActive ? satsActive.length : 'unknown'}</td>
-                <td>{time ? <TimeAgo date={time}/> : 'unknown'}</td>
-                <td><input 
-                        type="checkbox"
-                        checked={this.state.centerMap}
-                        onChange={() => this.setState({centerMap: !this.state.centerMap})} />
-                </td>
-                <td><input 
-                        type="checkbox"
-                        checked={this.state.playSound}
-                        onChange={() => this.setState({playSound: !this.state.playSound})} />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="Settings">
+            <div>
+              <div>Latitude</div>
+              <div>{lat ? lat.toFixed(5) : 'unknown'}</div>
+            </div>
+            <div>
+              <div>Latitude</div>
+              <div>{lon ? lon.toFixed(5) : 'unknown'}</div>
+            </div>
+            <div>
+              <div>Altitude</div>
+              <div>{alt ? alt.toFixed(5) : 'unknown'}</div>
+            </div>
+            <div>
+              <div>Speed</div>
+              <div>{speed != null ? speed.toFixed(5) : 'unknown'}</div>
+            </div>
+            <div>
+              <div>Active Satellites</div>
+              <div>{satsActive ? satsActive.length : 'unknown'}</div>
+            </div>
+            <div>
+              <div>Last Update</div>
+              <div>{time ? <TimeAgo date={time}/> : 'unknown'}</div>
+            </div>
+            <div>
+              <div>Distance</div>
+              <div>
+                <input 
+                  type="checkbox"
+                  checked={this.state.showDistance}
+                  onChange={this.renderDistance} />
+              </div>
+            </div>
+            <div>
+              <div>Follow</div>
+              <div>
+                <input 
+                type="checkbox"
+                checked={this.state.centerMap}
+                onChange={() => this.setState({centerMap: !this.state.centerMap})} />
+              </div>
+            </div>
+            <div>
+              <div>Sound</div>
+              <div>
+              <input 
+                type="checkbox"
+                checked={this.state.playSound}
+                onChange={() => this.setState({playSound: !this.state.playSound})}/>
+              </div>
+            </div>
+          </div>
           <div class="msg">{this.state.msg}</div>
           <div id="map"></div>
         </div>
