@@ -8,6 +8,7 @@ class App extends Component {
   // Initialize state
   state = { 
     data: {},
+    centerMap: true,
     playSound: false,
   }
 
@@ -29,7 +30,6 @@ class App extends Component {
         return;
       }
 
-      // Examine the text in the response
       response.json().then(this.updateMap);
     }).catch((err) => {
       console.log(err)
@@ -55,7 +55,9 @@ class App extends Component {
       } else {
         this.marker = L.marker(data).addTo(this.map);
       }
-      this.map.panTo(data)
+      if (this.state.centerMap) {
+        this.map.panTo(data)
+      }
       if (this.state.playSound){
         this.audioTag.play();
       }
@@ -82,6 +84,7 @@ class App extends Component {
                 <th>Speed</th>
                 <th>Active Satellites</th>
                 <th>Last Update</th>
+                <th>Follow</th>
                 <th>Sound</th>
               </tr>
             </thead>
@@ -93,6 +96,11 @@ class App extends Component {
                 <td>{speed != null ? speed : 'unknown'}</td>
                 <td>{satsActive ? satsActive.length : 'unknown'}</td>
                 <td>{time ? <TimeAgo date={time}/> : 'unknown'}</td>
+                <td><input 
+                        type="checkbox"
+                        checked={this.state.centerMap}
+                        onChange={() => this.setState({centerMap: !this.state.centerMap})} />
+                </td>
                 <td><input 
                         type="checkbox"
                         checked={this.state.playSound}
