@@ -91,11 +91,11 @@ class App extends Component {
           } else {
             this.userMarker = L.marker(userPosition).addTo(this.map);
           }
+          this.centerMap();
           if (this.line){
             this.line.remove();
           }
           this.line = L.polyline([this.state.data, userPosition], {color: 'red'}).bindTooltip(`${distance.toFixed(3)} km`, { permanent: true }).addTo(this.map);
-          this.centerMap();
         }, (error) => {
           console.log(error);
         });
@@ -121,7 +121,7 @@ class App extends Component {
       if (this.userMarker) {
         markers.push(this.userMarker)
       }
-      this.map.fitBounds(new L.featureGroup(markers).getBounds());
+      this.map.fitBounds(new L.featureGroup(markers).getBounds(), { animate: false });
     }
   }
 
