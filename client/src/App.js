@@ -171,7 +171,7 @@ class App extends Component {
               </div>
             </div>
             <div>
-              <div>Follow</div>
+              <div>Center</div>
               <div>
                 <input 
                 type="checkbox"
