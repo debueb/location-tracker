@@ -1,30 +1,16 @@
-# Rando
+# location-tracker
 
-A password generator built with React and Express.
+location tracker for [teltonika rut955](https://teltonika-networks.com/product/rut955/) that displays the geolocation of the device on a map
 
-This is a minimal demo of using Create React App to bootstrap a React project, connect the React app to an Express backend, and deploy the whole thing to Heroku.
+## how to use
 
-Read the blog post: [Create React App with Express in
-Production](https://daveceddia.com/create-react-app-express-production/)
-
-## Prerequisites
-
-You need to [sign up](https://heroku.com/) for a Heroku account if you don't already have one, and install the [Heroku toolbelt](https://devcenter.heroku.com/articles/heroku-cli). (On a Mac with Homebrew, just run `brew install heroku`).
-
-## Deploy to Heroku
-
-To deploy:
-
-1. Clone this repo.
-2. Inside the repo directory, run `heroku create` (requires [Heroku toolbelt](https://devcenter.heroku.com/articles/heroku-cli)).
-3. Run `git push heroku master` to simultaneously deploy the frontend + backend to Heroku.
-
-### Using NPM
-
-Check out the `npm` branch if you're not using Yarn:
-
-`git checkout npm`
-
-And then once on that branch, the deploy command is:
-
-`git push heroku npm:master`
+- add a gps receiver to the gps port of the rut955
+- install [node](https://nodejs.org/en/)
+- install [yarn](https://yarnpkg.com/lang/en/)
+- install dependencies
+  - `yarn`
+- start app locally
+  - `yarn start`
+- deploy to your favorite hosting provider (heroku works fine)
+- in the web ui of the rut955, [enable GPS](https://wiki.teltonika.lt/view/RUT955_GPS) and [enter your public hostname in the HTTP server section](https://wiki.teltonika.lt/view/RUT955_GPS#HTTPS.2FHTTP_Server_Settings)
+- [optional] by default, the device sends updates as soon as a new GPS position is received (5-10 secs on my device), which can consume quite a bit of traffic. if you want to change the update interval, you can configure the device to [collect NMEA sentences to an SD card](https://wiki.teltonika.lt/view/RUT955_GPS#NMEA_collecting) and configure a cronjob to send the updates periodically to your public hostname
