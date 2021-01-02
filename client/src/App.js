@@ -73,7 +73,7 @@ class App extends Component {
       } else {
         this.marker = L.marker(data, {icon: homeIcon}).addTo(this.map);
       }
-      this.marker.bindPopup(`https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon}`);
+      this.marker.bindPopup(`<a href="https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon}" target="blank">Open in Google Maps</a>`);
       this.centerMap();
       if (this.state.playSound){
         this.audioTag.play();
