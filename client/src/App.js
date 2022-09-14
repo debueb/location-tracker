@@ -14,7 +14,8 @@ class App extends Component {
   // Initialize state
   state = {
     msg: "Location not available",
-    data: {},
+    locations: [],
+    markers: [],
     centerMap: true,
     playSound: false,
     showDistance: false,
@@ -52,28 +53,31 @@ class App extends Component {
   }
 
   renderMap = () => {
-    this.setState( { msg: null });
     this.map = L.map('map', {
-      center: [this.state.data.lat, this.state.data.lon],
       zoom: 14,
       layers: [
         L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png'),
       ]
     });
+    this.setState( { msg: null });
   }
 
-  updateMap = (data) => {
-    this.setState({ data })
-    if (data.lat && data.lon) {
+  updateMap = (locations) => {
+    if (locations && locations.length > 0 ){
+      this.setState({ locations });
       if (!this.map) {
-        this.renderMap()
+        this.renderMap();
       }
-      if (this.marker) {
-        this.marker.setLatLng(data);
-      } else {
-        this.marker = L.marker(data, {icon: homeIcon}).addTo(this.map);
-      }
-      this.marker.bindPopup(`<a href="https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon}" target="blank">Open in Google Maps</a>`);
+      this.state.markers.forEach((marker) => this.map.removeLayer(marker));
+      this.state.markers = [];
+      this.state.locations.forEach((l) => {
+        if (l.lat && l.lon) {
+          let marker = L.marker(l, {icon: homeIcon});
+          marker.bindPopup(`<a href="https://www.google.com/maps/search/?api=1&query=${l.lat},${l.lon}" target="blank">${l.time}</a>`);
+          marker.addTo(this.map);
+          this.state.markers.push(marker);
+        }
+      });
       this.centerMap();
       if (this.state.playSound){
         this.audioTag.play();
@@ -82,43 +86,46 @@ class App extends Component {
   }
 
   renderDistance = ()=> {
-    if (this.state.data.lat && this.state.data.lon){
-      if (!this.state.showDistance) {
-        this.watchPositionId = navigator.geolocation.watchPosition((position) => {
-          let distance = GPS.Distance(this.state.data.lat, this.state.data.lon, position.coords.latitude, position.coords.longitude);
-          const userPosition = {lat: position.coords.latitude, lng: position.coords.longitude}
+    if (this.state.locations && this.state.locations.length > 0){
+      const location = this.state.locations[this.state.locations.length-1];
+      if (location.lat && location.lon) {
+        if (!this.state.showDistance) {
+          this.watchPositionId = navigator.geolocation.watchPosition((position) => {
+            let distance = GPS.Distance(location.lat, location.lon, position.coords.latitude, position.coords.longitude);
+            const userPosition = {lat: position.coords.latitude, lng: position.coords.longitude}
+            if (this.userMarker) {
+              this.userMarker.setLatLng(userPosition)
+            } else {
+              this.userMarker = L.marker(userPosition).addTo(this.map);
+            }
+            this.centerMap();
+            if (this.line){
+              this.line.remove();
+            }
+            this.line = L.polyline([location, userPosition], {color: 'red'}).bindTooltip(`${distance.toFixed(3)} km`, { permanent: true }).addTo(this.map);
+          }, (error) => {
+            console.log(error);
+          });
+        } else { 
+          if (this.watchPositionId) {
+            navigator.geolocation.clearWatch(this.watchPositionId);
+          }
           if (this.userMarker) {
-            this.userMarker.setLatLng(userPosition)
-          } else {
-            this.userMarker = L.marker(userPosition).addTo(this.map);
-          }
-          this.centerMap();
-          if (this.line){
+            this.userMarker.remove()
             this.line.remove();
+            this.userMarker = undefined;
+            this.line = undefined;
+            this.centerMap();
           }
-          this.line = L.polyline([this.state.data, userPosition], {color: 'red'}).bindTooltip(`${distance.toFixed(3)} km`, { permanent: true }).addTo(this.map);
-        }, (error) => {
-          console.log(error);
-        });
-      } else { 
-        if (this.watchPositionId) {
-          navigator.geolocation.clearWatch(this.watchPositionId);
         }
-        if (this.userMarker) {
-          this.userMarker.remove()
-          this.line.remove();
-          this.userMarker = undefined;
-          this.line = undefined;
-          this.centerMap();
-        }
+        this.setState({showDistance: !this.state.showDistance})
       }
-      this.setState({showDistance: !this.state.showDistance})
     }
   }
 
   centerMap = () => {
     if (this.state.centerMap) {
-      let markers = [this.marker];
+      let markers = Array.from(this.state.markers);
       if (this.userMarker) {
         markers.push(this.userMarker)
       }
@@ -127,7 +134,8 @@ class App extends Component {
   }
 
   render() {
-    const { lat, lon, alt, satsActive, speed, time } = this.state.data;
+    const currentLocation = this.state.locations.length > 0 ? this.state.locations[this.state.locations.length-1] : {};
+    const { lat, lon, alt, satsActive, speed, time } = currentLocation;
     return (
       <div>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
@@ -145,18 +153,6 @@ class App extends Component {
             <div>
               <div>Latitude</div>
               <div>{lon ? lon.toFixed(5) : 'unknown'}</div>
-            </div>
-            <div>
-              <div>Altitude</div>
-              <div>{alt ? alt.toFixed(5) : 'unknown'}</div>
-            </div>
-            <div>
-              <div>Speed</div>
-              <div>{speed != null ? speed.toFixed(5) : 'unknown'}</div>
-            </div>
-            <div>
-              <div>Active Satellites</div>
-              <div>{satsActive ? satsActive.length : 'unknown'}</div>
             </div>
             <div>
               <div>Last Update</div>
