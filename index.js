@@ -7,7 +7,7 @@ const location = require("./api/location");
 
 const app = express();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 6000;
 const server = http.createServer(app);
 const io = socketIo(server); 
 
